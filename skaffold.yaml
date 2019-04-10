@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/ramogundogdu/cloudbeesworkshop:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/ramogundogdu/cloudbeesworkshop:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: cloudbeesworkshop
+        chartPath: charts/cloudbeesworkshop
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/ramogundogdu/cloudbeesworkshop'
+          image.tag: '{{.DIGEST_HEX}}'
